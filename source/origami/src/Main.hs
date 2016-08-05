@@ -5,8 +5,10 @@ import Data.ByteString (readFile)
 import System.Environment
 
 import Types
+import Parser
+
+convert filename = (waShow . parseProblem) <$> (readFile filename)
+                     >>= writeFile (filename ++ ".wf")
 
 main :: IO ()
-main = getArgs >>= mapM_ convert where
-  convert filename = (waShow . parseProblem) <$> (readFile filename)
-    >>= writeFile (filename ++ ".new")
+main = getArgs >>= mapM_ convert 
