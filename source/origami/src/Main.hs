@@ -7,8 +7,9 @@ import System.Environment
 import Types
 import Parser
 
+convert :: String -> IO ()
 convert filename = (waShow . parseProblem) <$> (readFile filename)
-                     >>= writeFile (filename ++ ".wf")
+  >>= writeFile (filename ++ ".wf")
 
 main :: IO ()
 main = getArgs >>= mapM_ convert 

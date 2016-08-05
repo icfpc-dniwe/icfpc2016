@@ -74,10 +74,14 @@ parseSegment = do
   b <- parseVertex
   return $ Segment a b
 
-parseNumber :: Parser Int
-parseNumber = do
+
+parseUnsignedNumber :: Parser Int
+parseUnsignedNumber = do
   number <- takeWhile1 (\c -> let c' = (fromIntegral c) in ((ord '0') <= c') && (c' <= (ord '9')))
   return $ (read' number)
+
+parseNumber :: Parser Int
+parseNumber = spaces *> ((negate <$> ((string "-") *> parseUnsignedNumber)) <|> parseUnsignedNumber)
 
 parseVertex :: Parser Vertex
 parseVertex = do
