@@ -1,3 +1,15 @@
 * meta
 Team ID: 224
 Password: vbNCV5aSfnAx 
+
+
+* specs
+A silhouette specification consists of the following items, each in one line.
+- the number of polygons
+- for each polygon, the number of vertices
+- for each vertex, its coordinates
+
+A skeleton is a set of edges and folding line segments of the origami. A skeleton is specified by the following items, each in one line:
+- the number of line segments
+- for each line segment, the coordinates of its two vertices, separated by a space
+The skeleton specification must employ the least number of line segments; any two line segments that lie on a same line must be disjoint.
