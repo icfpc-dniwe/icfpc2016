@@ -1,5 +1,9 @@
 module Main where
 
+import Prelude hiding (readFile)
+import Data.ByteString (readFile)
+
+import Types
+
 main :: IO ()
-main = do
-  putStrLn "hello world"
+main = (waShow . parseProblem) <$> (readFile "examples/silhouette.txt") >>= putStrLn
