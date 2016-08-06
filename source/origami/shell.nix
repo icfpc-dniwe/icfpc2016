@@ -16,6 +16,7 @@ let
         libraryHaskellDepends = [
           attoparsec base linear servant servant-client
         ];
+        libraryPkgconfigDepends = [ pkgs.freeglut ];
         executableHaskellDepends = [ attoparsec base gloss text ];
         homepage = "https://github.com/githubuser/origami#readme";
         description = "Simple project template from stack";
