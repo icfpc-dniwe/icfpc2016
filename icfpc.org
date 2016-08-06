@@ -2,6 +2,9 @@
 Team ID: 224
 Password: vbNCV5aSfnAx 
 
+API key
+224-dc056a82e0e9b5443625dbf5e6e43e5e
+
 
 * specs
 A silhouette specification consists of the following items, each in one line.
