@@ -39,6 +39,7 @@ library
                , time
                , http-client
                , http-media
+               , random
                , servant
                , servant-client
 
@@ -70,8 +71,8 @@ executable get-problems
                , aeson
                , bytestring
 
-executable folding
-  hs-source-dirs:      folding
+executable paper-folding
+  hs-source-dirs:      paper-folding
   main-is:             Main.hs
   default-language:    Haskell2010
   ghc-options:         -Wall
