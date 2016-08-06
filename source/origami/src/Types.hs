@@ -20,4 +20,3 @@ data Skeleton = Skeleton [Segment]
 
 data Problem = Problem Silhouette Skeleton
   deriving Show
-

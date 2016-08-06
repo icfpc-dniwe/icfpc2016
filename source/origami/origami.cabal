@@ -12,14 +12,38 @@ category:            Web
 build-type:          Simple
 cabal-version:       >=1.10
 
-executable origami
+library
   hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  exposed-modules:     Types
+                     , Parser
+                     , API
+  ghc-options:         -Wall
+  default-extensions:  OverloadedStrings
+  build-depends: base >= 4.7 && < 5
+               , attoparsec
+               , linear
+               , servant
+               , servant-client
+
+executable wa-convert
+  hs-source-dirs:      wa-convert
   main-is:             Main.hs
   default-language:    Haskell2010
   ghc-options:         -Wall
   default-extensions:  OverloadedStrings
-                     , LambdaCase
   build-depends: base >= 4.7 && < 5
-               , attoparsec 
-               , text
+               , origami
+               , attoparsec
                , linear
+               , text
+
+executable visualize
+  hs-source-dirs:      visualize
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  build-depends: base >= 4.7 && < 5
+               , origami
+               , gloss
