@@ -21,6 +21,7 @@ library
                      , API
                      , Parser
                      , Emit
+                     , ConvexHull
   ghc-options:         -Wall
   default-extensions:  OverloadedStrings
                      , DataKinds
@@ -32,7 +33,7 @@ library
   build-depends: base >= 4.7 && < 5
                , attoparsec
                , aeson
-               , linear
+               , linear >= 1.20.5
                , text
                , bytestring
                , time
@@ -69,8 +70,8 @@ executable get-problems
                , aeson
                , bytestring
 
-executable convex-hull
-  hs-source-dirs:      convex-hull
+executable folding
+  hs-source-dirs:      folding
   main-is:             Main.hs
   default-language:    Haskell2010
   ghc-options:         -Wall
@@ -79,7 +80,7 @@ executable convex-hull
                , linear >= 1.20.5
                , origami
                , random
-
+               
 executable visualize
   hs-source-dirs:      visualize
   main-is:             Main.hs

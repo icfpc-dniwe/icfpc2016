@@ -4,7 +4,6 @@ module ConvexHull (
 
 import Data.List (sortBy, nub)
 import Linear.V2
-import Linear.Metric
 import Types
 
 fix' :: (Eq a) => (a -> a) -> a -> a
