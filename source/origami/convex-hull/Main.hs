@@ -12,7 +12,7 @@ maxVertices = 50
 outputFileName :: FilePath
 outputFileName = "convex.wf"
 
-formatVertices :: [IVertex] -> String
+formatVertices :: [VR] -> String
 formatVertices vs = (show $ length vs) ++ "\n" ++ (intercalate "\n" $ map waShow vs)
 
 instance (Random a) => Random (V2 a) where
@@ -45,12 +45,12 @@ instance (Num a, Ord a, Integral a, Random a) => Random (Ratio a) where
 main :: IO ()
 main = getVertices maxVertices >>= outputVertices outputFileName where
 
-  outputVertices :: FilePath -> [IVertex] -> IO ()
+  outputVertices :: FilePath -> [VR] -> IO ()
   outputVertices filepath vs = putStrLn -- writeFile
     -- filepath
     ((formatVertices vs) ++ "\n" ++ (formatVertices $ convexHull vs)) 
 
-  getVertices :: Int -> IO [IVertex]
+  getVertices :: Int -> IO [VR]
   getVertices n = (take n) . (randomRs (V2 0 0, V2 1 1)) <$> getStdGen
 
     
