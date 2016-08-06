@@ -1,22 +1,22 @@
 module Types where
 
-import Data.Ratio
 import Linear.V2
 
-type IVertex = V2 IRational
-type IRational = Ratio Int
+type VR = V2 Rational
 
-data Polygon = Polygon [IVertex]
-  deriving Show
+data Polygon = Polygon [VR]
+  deriving (Eq, Show)
 
 data Silhouette = Silhouette [Polygon]
-  deriving Show
+  deriving (Eq, Show)
 
-data Segment = Segment IVertex IVertex
-  deriving Show
+data Segment = Segment VR VR
+  deriving (Eq, Show)
 
 data Skeleton = Skeleton [Segment]
-  deriving Show
+  deriving (Eq, Show)
 
 data Problem = Problem Silhouette Skeleton
-  deriving Show
+  deriving (Eq, Show)
+
+data Solution

@@ -17,13 +17,27 @@ library
   default-language:    Haskell2010
   ghc-options:         -Wall
   exposed-modules:     Types
-                     , Parser
+                     , Math
                      , API
+                     , Parser
+                     , Emit
   ghc-options:         -Wall
   default-extensions:  OverloadedStrings
+                     , DataKinds
+                     , TypeOperators
+                     , MultiParamTypeClasses
+                     , DeriveGeneric
+                     , FlexibleContexts
+                     , GeneralizedNewtypeDeriving
   build-depends: base >= 4.7 && < 5
                , attoparsec
+               , aeson
                , linear
+               , text
+               , bytestring
+               , time
+               , http-client
+               , http-media
                , servant
                , servant-client
 
@@ -37,7 +51,23 @@ executable wa-convert
                , origami
                , attoparsec
                , linear
+               , bytestring
+
+executable get-problems
+  hs-source-dirs:      get-problems
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  build-depends: base >= 4.7 && < 5
+               , origami
+               , http-client
                , text
+               , containers
+               , transformers
+               , directory
+               , servant-client
+               , aeson
+               , bytestring
 
 executable convex-hull
   hs-source-dirs:      convex-hull
@@ -54,7 +84,12 @@ executable visualize
   hs-source-dirs:      visualize
   main-is:             Main.hs
   default-language:    Haskell2010
-  ghc-options:         -Wall
+  ghc-options:         -Wall -optl-Wl,-lglut
+  default-extensions:  ViewPatterns
+                     , OverloadedStrings
   build-depends: base >= 4.7 && < 5
                , origami
                , gloss
+               , linear
+               , bytestring
+               , attoparsec

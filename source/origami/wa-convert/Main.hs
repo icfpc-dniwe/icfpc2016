@@ -1,15 +1,15 @@
 module Main where
 
-import qualified Data.Text.Lazy.IO as TL
-import qualified Data.Attoparsec.Text.Lazy as P
 import System.Environment
+import qualified Data.ByteString.Lazy as BL
+import qualified Data.Attoparsec.ByteString.Lazy as P
 
 import Parser
 import WolframAlpha
 
 convert :: String -> IO ()
 convert filename = do
-  file <- TL.readFile filename
+  file <- BL.readFile filename
   prob <- case P.parse problem file of
     P.Fail _ _ err -> fail $ "Parse error: " ++ err
     P.Done "" p -> return p
