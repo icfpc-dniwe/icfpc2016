@@ -1,20 +1,18 @@
-module Types (module Types) where
+module Types where
 
-import Prelude hiding (takeWhile, Rational)
+import Data.Ratio
+import Linear.V2
 
-data Rational = Rational Int Int
-  deriving Show
+type IVertex = V2 IRational
+type IRational = Ratio Int
 
-data Vertex = Vertex Rational Rational
-  deriving Show
-
-data Polygon = Polygon [Vertex]
+data Polygon = Polygon [IVertex]
   deriving Show
 
 data Silhouette = Silhouette [Polygon]
   deriving Show
 
-data Segment = Segment Vertex Vertex
+data Segment = Segment IVertex IVertex
   deriving Show
 
 data Skeleton = Skeleton [Segment]
