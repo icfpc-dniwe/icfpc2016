@@ -17,8 +17,8 @@ import qualified Graphics.Gloss.Interface.Pure.Display as G
 maxVertices :: Int
 maxVertices = 10
 
-fmtSegment :: Segment -> String
-fmtSegment (Segment a b) = "[" ++ (fmtVR a) ++ "; " ++ (fmtVR b) ++ "]" 
+fmtSegment :: Segment Rational -> String
+fmtSegment (Seg a b) = "[" ++ (fmtVR a) ++ "; " ++ (fmtVR b) ++ "]" 
 
 pointV2 :: (Real a) => V2 a -> Point
 pointV2 (fmap (fromRational . toRational) -> V2 x y) = (x, y)
@@ -26,8 +26,8 @@ pointV2 (fmap (fromRational . toRational) -> V2 x y) = (x, y)
 vertexPicture :: Color -> VR -> Picture
 vertexPicture color (V2 x y) = Translate (fromRational x) (fromRational y) $ Color color $ Circle 0.01
 
-segmentPicture :: Color -> Segment -> Picture
-segmentPicture color (Segment a b) = Color color $ Line [pointV2 a, pointV2 b]
+segmentPicture :: Color -> Segment Rational -> Picture
+segmentPicture color (Seg a b) = Color color $ Line [pointV2 a, pointV2 b]
 
 (<$$>) f mmx = (f <$>) <$> mmx
 
@@ -35,8 +35,8 @@ segmentPicture color (Segment a b) = Color color $ Line [pointV2 a, pointV2 b]
 randomHull :: Int -> IO [VR]
 randomHull n = reverse . convexHull . (take n) . (randomRs (V2 (1/4) (1/4), V2 (3/4) (3/4))) <$> getStdGen
 
-mkHullEdges :: [VR] -> [Segment]
-mkHullEdges hs = zipWith Segment hs (drop 1 $ cycle hs) 
+mkHullEdges :: [VR] -> [Segment Rational]
+mkHullEdges hs = zipWith Seg hs (drop 1 $ cycle hs) 
 
 notSoRandomHull :: Int -> IO [VR]
 notSoRandomHull _ = return $ foldl1 (.) [
@@ -60,7 +60,7 @@ update (paper, (a:as)) = let
   in (paper', as)
 
 
-render :: [Segment] -> World -> Picture
+render :: [Segment Rational] -> World -> Picture
 render hull ((Paper (Wireframe ws) (Mapping ms)), _)
   = Translate (-200) (-200)
   $ Scale 400 400
@@ -68,8 +68,8 @@ render hull ((Paper (Wireframe ws) (Mapping ms)), _)
   $ concat [
       map (segmentPicture blue) ws
     , map (segmentPicture red) hull
-    -- , map (vertexPicture green) (concat $ map (\(Segment p1 p2) -> [p1, p2]) ws)
-    , map (segmentPicture yellow) (map (\(a, b) -> Segment a b) ms) 
+    -- , map (vertexPicture green) (concat $ map (\(Seg p1 p2) -> [p1, p2]) ws)
+    , map (segmentPicture yellow) (map (\(a, b) -> Seg a b) ms) 
     , map (vertexPicture yellow) $ map fst ms ++ map snd ms
     ]
 

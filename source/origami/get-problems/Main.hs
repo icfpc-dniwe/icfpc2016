@@ -27,7 +27,7 @@ query manager = do
       liftIO $ putStrLn $ "Fetching " ++ name
       delay
       probText <- getProblem hash manager icfpcUrl
-      liftIO $ B.writeFile ("snapshots/" ++ name) probText
+      liftIO $ B.writeFile ("problems/" ++ name) probText
 
 main :: IO ()
 main = do

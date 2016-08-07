@@ -1,11 +1,13 @@
 module Math
        ( clockwise
-       , ketTri
+       , belongsLineSegment
+       , belongsLineVertex 
        , intersectLineLine
        , intersectLineSegment
-       , sideLineVertex
-       , belongsLineVertex 
+       , intersectSegmentVertex
+       , ketTri
        , mirrorLineVertex
+       , sideLineVertex
        ) where
 
 import Data.List
@@ -19,13 +21,14 @@ clockwise (Polygon pts) = sum (zipWith edge pts (tail pts ++ [head pts])) >= 0
   where edge (V2 x1 y1) (V2 x2 y2) = (x2 - x1) * (y2 + y1)
 
 intersectLineLine 
-  :: Segment
-  -> Segment
-  -> Maybe VR
+  :: (Eq a, Fractional a)
+  => Segment a
+  -> Segment a
+  -> Maybe (V2 a)
 
 intersectLineLine
- (Segment (V2 x1 y1) (V2 x2 y2))
- (Segment (V2 x3 y3) (V2 x4 y4)) = let
+ (Seg (V2 x1 y1) (V2 x2 y2))
+ (Seg (V2 x3 y3) (V2 x4 y4)) = let
   dx12 = x1 - x2
   dx34 = x3 - x4
   dy12 = y1 - y2
@@ -42,9 +45,9 @@ intersectLineLine
        in Just $ V2 (numx / den) (numy / den)
 
 
-sideLineVertex :: Segment -> VR -> Ordering
+sideLineVertex :: Segment Rational -> VR -> Ordering
 sideLineVertex
-  (Segment (V2 x1 y1) (V2 x2 y2))
+  (Seg (V2 x1 y1) (V2 x2 y2))
   (V2 x y) = let
     dx  = x2 - x1
     dy  = y2 - y1
@@ -53,21 +56,24 @@ sideLineVertex
     in compare (dx * dy1 - dx1 * dy) 0
 
 
-belongsLineVertex :: Segment -> VR -> Bool
+belongsLineVertex :: Segment Rational -> VR -> Bool
 belongsLineVertex line p = (EQ == sideLineVertex line p)
 
-belongsLineSegment :: Segment -> Segment -> Bool
-belongsLineSegment segment (Segment q1 q2)
+belongsLineSegment
+  :: (Eq a, Num a)
+  => Segment Rational -> Segment Rational -> Bool
+belongsLineSegment segment (Seg q1 q2)
   = all (belongsLineVertex segment) [q1, q2]
 
        
 intersectSegmentVertex
-  :: Segment
-  -> VR
-  -> Maybe VR
+  :: (Ord a, Num a)
+  => Segment a
+  -> V2 a
+  -> Maybe (V2 a)
 
 intersectSegmentVertex
-  (Segment (V2 x1 y1) (V2 x2 y2))
+  (Seg (V2 x1 y1) (V2 x2 y2))
   p@(V2 x y) = let
     dx  = x2 - x1
     dy  = y2 - y1
@@ -82,26 +88,27 @@ intersectSegmentVertex
     s = s1 * s2
     b = dx * dy1 - dx1 * dy
 
-    in if (b == 0) && (s >= 0)
+    in if b == 0 && s >= 0
        then Just p
        else Nothing
 
 
 intersectLineSegment
-  :: Segment
-  -> Segment
-  -> Maybe VR
+  :: (Ord a, Fractional a)
+  => Segment a
+  -> Segment a
+  -> Maybe (V2 a)
 
 intersectLineSegment line segment
   = intersectLineLine line segment >>= intersectSegmentVertex segment
 
 
 mirrorLineVertex
-  :: Segment
+  :: Segment Rational
   -> VR
   -> VR
 
-mirrorLineVertex (Segment p1 p2) q = let
+mirrorLineVertex (Seg p1 p2) q = let
   p12 = p2 - p1
   p1q = q - p1
   qp = project p12 p1q
