@@ -5,7 +5,22 @@ module Types where
 import Data.Set (Set)
 import Data.Ratio
 import Linear.V2
+import Linear.Epsilon
 import System.Random
+
+
+type VR = V2 Rational
+
+fmtVR :: VR -> String
+fmtVR (V2 x y) = "(" ++ (show' x) ++ ", " ++ (show' y) ++ ")" where
+  show' z = show ((fromRational z) :: Double)
+
+fmtPair :: (VR, VR) -> String
+fmtPair (a, b) = (fmtVR a) ++ " -> " ++ (fmtVR b)
+
+instance Epsilon Rational where
+  nearZero q = nearZero ((fromRational q) :: Double)
+  
 
 instance (Random a) => Random (V2 a) where
   random g = let
@@ -31,8 +46,6 @@ instance (Num a, Ord a, Integral a, Random a) => Random (Ratio a) where
     cr = (numerator r) * scale * (denominator l)
     (n, g') = randomR (cl, cr) g
     in (n % cd, g')
-
-type VR = V2 Rational
 
 data Triangle a = Tri !(V2 a) !(V2 a) !(V2 a)
                 deriving (Eq, Show, Functor)
