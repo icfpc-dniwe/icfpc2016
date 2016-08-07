@@ -2,11 +2,16 @@ module Math
        ( clockwise
        , ketTri
        , intersectLineLine
+       , intersectLineSegment
+       , sideLineVertex
+       , belongsLineVertex 
+       , mirrorLineVertex
        ) where
 
 import Data.List
 import Linear.V2
 import Linear.Epsilon
+import Linear.Metric
 import Types
 
 clockwise :: (Num a, Ord a) => Polygon a -> Bool
@@ -37,21 +42,23 @@ intersectLineLine
        in Just $ V2 (numx / den) (numy / den)
 
 
-belongsLineVertex :: Segment -> VR -> Bool
-belongsLineVertex
+sideLineVertex :: Segment -> VR -> Ordering
+sideLineVertex
   (Segment (V2 x1 y1) (V2 x2 y2))
   (V2 x y) = let
     dx  = x2 - x1
     dy  = y2 - y1
     dx1 = x - x1
     dy1 = y - y1
-    in (nearZero $ dx * dy1 - dx1 * dy) 
+    in compare (dx * dy1 - dx1 * dy) 0
 
+
+belongsLineVertex :: Segment -> VR -> Bool
+belongsLineVertex line p = (EQ == sideLineVertex line p)
 
 belongsLineSegment :: Segment -> Segment -> Bool
 belongsLineSegment segment (Segment q1 q2)
   = all (belongsLineVertex segment) [q1, q2]
-  
 
        
 intersectSegmentVertex
@@ -75,7 +82,7 @@ intersectSegmentVertex
     s = s1 * s2
     b = dx * dy1 - dx1 * dy
 
-    in if (nearZero b) && (s >= 0)
+    in if (b == 0) && (s >= 0)
        then Just p
        else Nothing
 
@@ -88,6 +95,20 @@ intersectLineSegment
 intersectLineSegment line segment
   = intersectLineLine line segment >>= intersectSegmentVertex segment
 
+
+mirrorLineVertex
+  :: Segment
+  -> VR
+  -> VR
+
+mirrorLineVertex (Segment p1 p2) q = let
+  p12 = p2 - p1
+  p1q = q - p1
+  qp = project p12 p1q
+  d = qp - p1q
+  in q + (2 * d)
+
+  
 ketTri :: (Ord a, Num a) => Polygon a -> [Triangle a]
 ketTri (Polygon ps@(p1:p2:p3:qs)) = scan vs stack rs
   where vs = qs ++ [p1]

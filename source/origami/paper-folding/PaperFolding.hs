@@ -10,6 +10,7 @@ import ConvexHull
 import Data.Foldable
 import Data.List (sortBy, nub)
 import Data.Maybe
+import Debug.Trace
 import Linear.V2
 import Math
 import Types
@@ -49,62 +50,53 @@ data Action = Split Segment
             | Move VR
 
 
-  
 mergeMappings :: Mapping -> Mapping -> Mapping 
-mergeMappings = error "TODO mergeMapping"
+mergeMappings (Mapping ms) (Mapping ms') = Mapping (ms ++ ms')
 
 
 
 performAction :: Action -> Paper -> Paper
 
-
 performAction (Fold s) paper = performAction (Mirror s) . performAction (Split s) $ paper
 
 
-performAction (Split line) (Paper (Wireframe ws) mapping)
+performAction (Split l) (Paper (Wireframe ws) mapping)
   = Paper (Wireframe ws') mapping where
 
-    ws' = concat $ map (splitSegment line) ws
+    ws' = new ++ old
 
-    splitSegment l segment@(Segment p1 p2) = ($ (intersectLineSegment l segment)) $ maybe
+    ls = map (intersectLineSegment l) ws
+    ps = sortBy posOrder $ filter (belongsLineVertex l) (catMaybes ls)
+
+    new = zipWith Segment ps (drop 1 $ cycle ps)
+
+    splitSegment segment@(Segment p1 p2) intersection = ($ intersection) $ maybe
       [segment]
       (\p -> if (p /= p1) && (p /= p2)
              then [Segment p1 p, Segment p p2]
              else [segment])
-                  
+
+    old = concat $ zipWith splitSegment ws ls
+    
   
 performAction (Mirror l) (Paper (Wireframe ws) mapping)
   = Paper (Wireframe ws') mapping' where
 
-    (ws', ms') = unzip $ map (mirrorSegment l) ws
+    (ws', ms') = unzip $ map mirrorSegment ws
 
-    mapping' = mapping `mergeMappings` (Mapping ms')
+    mapping' = mapping `mergeMappings` (Mapping $ concat ms')
 
-    mirrorSegment line (Segment p1 p2) = let
-      (
+    mirrorSegment (Segment p1 p2) = let
+      (p1', m1) = mirrorVertex p1
+      (p2', m2) = mirrorVertex p2
+      in (Segment p1' p2', catMaybes [m1, m2])
 
-    mirrorVertex line p@(V2 x y) =
-      if belongsLineVertex line p
+    mirrorVertex p =
+      if GT == sideLineVertex l p
       then (p, Nothing)
-      else (p', Just (p, p')) where
-        p' = p ... -- TODO
-
--- performAction
---   (Paper (Wireframe ws) (Mapping ms))
---   (Fold line@(Segment p1 p2)) = Paper (Wireframe ws'') (error "TODO") where
---     ws'         = line `splitSegments` ws
---     (ws'', ms') = line `mirrorSegments` ws
---     ms''        = ms `mergeMapping` ms'
-  
-
-
-      
-
-
+      else (p', Just (p, p')) where p' = mirrorLineVertex l p 
 
   
-
-
  -- | [VR] supposed to be a convex hull, ccw ordered
 wrapConvexHull :: [VR] -> Paper
 wrapConvexHull hs = foldl' (flip performAction) initialPaper actions' where
