@@ -51,7 +51,7 @@ ratio = do
   d <- (string "/" *> skipSpace *> decimal) <|> (return 1)
   return (n % d)
 
-polygon :: Parser Polygon
+polygon :: (Integral a) => Parser (Polygon (Ratio a))
 polygon = do
   n <- decimal
   vertices <- replicateM n (skipSpace *> vertex)
