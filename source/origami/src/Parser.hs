@@ -30,12 +30,12 @@ skeleton = do
   segments <- replicateM n (skipSpace *> segment)
   return $ Skeleton segments
 
-segment :: Parser Segment
+segment :: (Integral a) => Parser (Segment (Ratio a))
 segment = do
   a <- vertex
   skipSpace
   b <- vertex
-  return $ Segment a b
+  return $ Seg a b
 
 vertex :: (Integral a) => Parser (V2 (Ratio a))
 vertex = do

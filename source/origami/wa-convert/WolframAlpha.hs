@@ -21,14 +21,14 @@ instance Integral a => WolframAlphaShow (Ratio a) where
 instance WolframAlphaShow a => WolframAlphaShow (V2 a) where
   waShow (V2 x y) = waShow x ++ " " ++ waShow y
 
-instance WolframAlphaShow Polygon where
+instance WolframAlphaShow a => WolframAlphaShow (Polygon a) where
   waShow (Polygon vs) = concat $ intersperse "\n" (show (length vs) : map waShow vs)
 
 instance WolframAlphaShow Silhouette where
   waShow (Silhouette ps) = concat $ intersperse "\n" $ (show (length ps) : map waShow ps)
 
-instance WolframAlphaShow Segment where
-  waShow (Segment a b) = waShow a ++ " " ++ waShow b
+instance WolframAlphaShow a => WolframAlphaShow (Segment a) where
+  waShow (Seg a b) = waShow a ++ " " ++ waShow b
 
 instance WolframAlphaShow Skeleton where
   waShow (Skeleton ss) = concat $ intersperse "\n" $ (show (length ss) : map waShow ss)
