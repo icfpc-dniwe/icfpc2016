@@ -32,6 +32,8 @@ instance (Num a, Ord a, Integral a, Random a) => Random (Ratio a) where
     (n, g') = randomR (cl, cr) g
     in (n % cd, g')
 
+type VR = V2 Rational
+
 data Triangle a = Tri !(V2 a) !(V2 a) !(V2 a)
                 deriving (Eq, Show, Functor)
 
