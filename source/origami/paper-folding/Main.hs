@@ -1,5 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 
+import Control.Arrow ((***))
 import ConvexHull
 import PaperFolding
 import Math       
@@ -44,7 +45,7 @@ notSoRandomHull _ = return $ foldl1 (.) [
   , (* (1/3))
   ] <$$> [
     V2 0 (-1)
-  , V2 (1/2) 0
+  , V2 (1) 0
   , V2 0 1
   , V2 (-1) 0 
   ]
@@ -76,7 +77,7 @@ render hull ((Paper (Wireframe ws) (Mapping ms)), _)
 
 main :: IO ()
 main = do
-  hull <- randomHull 6
+  hull <- notSoRandomHull 6
   let hullEdges = mkHullEdges hull
   let actions = map Fold (cycle hullEdges)
 
@@ -88,6 +89,7 @@ main = do
     (render hullEdges)
     (\evt world -> case evt of
        (EventKey (SpecialKey KeySpace) Down _ _) -> update world
+       (EventKey (SpecialKey KeyEnter) Down _ _) -> update $ id *** (Revert:) $ world
        _                                         -> world)
     (\_ world -> world)
 

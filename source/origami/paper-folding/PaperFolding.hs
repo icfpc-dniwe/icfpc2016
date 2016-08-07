@@ -63,6 +63,7 @@ initialPaper = Paper initialWireframe initialMapping
 data Action = Split (Segment Rational)
             | Mirror (Segment Rational)
             | Fold (Segment Rational)
+            | Revert
 
 
 diSegmentEq :: Segment Rational -> Segment Rational -> Bool
@@ -110,6 +111,16 @@ performAction (Mirror l) (Paper (Wireframe ws) mapping)
       if GT == sideLineVertex l p
       then (p, Nothing)
       else (p', Just (p, p')) where p' = mirrorLineVertex l p 
+
+
+performAction Revert (Paper (Wireframe ws) (Mapping ms))
+  = Paper (Wireframe ws') (Mapping []) where
+  ms' = map (\(a, b) -> (b, a)) ms
+  ws' = map revertSegment ws
+
+  revertSegment (Seg p1 p2) = Seg (revertVertex p1) (revertVertex p2)
+  revertVertex p = maybe p id $ lookup p ms'
+
 
  -- | [VR] supposed to be a convex hull, ccw ordered
 wrapConvexHull :: [VR] -> Paper
