@@ -12,7 +12,6 @@ module Math
 
 import Data.List
 import Linear.V2
-import Linear.Epsilon
 import Linear.Metric
 import Types
 
@@ -45,7 +44,7 @@ intersectLineLine
        in Just $ V2 (numx / den) (numy / den)
 
 
-sideLineVertex :: Segment Rational -> VR -> Ordering
+sideLineVertex :: (Num a, Ord a) => Segment a -> V2 a -> Ordering
 sideLineVertex
   (Seg (V2 x1 y1) (V2 x2 y2))
   (V2 x y) = let
@@ -56,12 +55,12 @@ sideLineVertex
     in compare (dx * dy1 - dx1 * dy) 0
 
 
-belongsLineVertex :: Segment Rational -> VR -> Bool
+belongsLineVertex :: (Num a, Ord a) => Segment a -> V2 a -> Bool
 belongsLineVertex line p = (EQ == sideLineVertex line p)
 
 belongsLineSegment
-  :: (Eq a, Num a)
-  => Segment Rational -> Segment Rational -> Bool
+  :: (Ord a, Num a)
+  => Segment a -> Segment a -> Bool
 belongsLineSegment segment (Seg q1 q2)
   = all (belongsLineVertex segment) [q1, q2]
 
@@ -104,9 +103,10 @@ intersectLineSegment line segment
 
 
 mirrorLineVertex
-  :: Segment Rational
-  -> VR
-  -> VR
+  :: (Fractional a)
+  => Segment a
+  -> V2 a
+  -> V2 a
 
 mirrorLineVertex (Seg p1 p2) q = let
   p12 = p2 - p1
