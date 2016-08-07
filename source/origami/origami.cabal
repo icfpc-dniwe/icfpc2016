@@ -34,6 +34,7 @@ library
                      , FlexibleInstances
                      , GeneralizedNewtypeDeriving
                      , DeriveFunctor
+                     , ViewPatterns
   build-depends: base >= 4.7 && < 5
                , attoparsec
                , containers

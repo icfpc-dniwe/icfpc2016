@@ -1,10 +1,11 @@
-import qualified Data.Set as S
 import System.Environment
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Attoparsec.ByteString.Lazy as P
 import Graphics.Gloss.Interface.Pure.Display hiding (Polygon, color)
 import qualified Graphics.Gloss.Interface.Pure.Display as G
 import Linear.V2
+
+import Debug.Trace
 
 import Types
 import Parser
@@ -17,6 +18,9 @@ pointV2 (fmap (fromRational . toRational) -> V2 x y) = (x, y)
 polygonPicture :: (Real a) => Polygon a -> Picture
 polygonPicture = Pictures . map triPicture . ketTri
   where triPicture (Tri a b c) = G.Polygon [pointV2 a, pointV2 b, pointV2 c]
+
+convexPicture :: (Real a) => Convex a -> Picture
+convexPicture (Convex pol) = G.Polygon $ map pointV2 pol
 
 silhouettePicture :: Silhouette -> Picture
 silhouettePicture (Silhouette silh) = Pictures $ map polygonize silh
@@ -35,15 +39,12 @@ skeletonPicture (Skeleton skel) = Pictures $ map segmentPicture skel
 problemPicture :: Problem -> Picture
 problemPicture (Problem silh skel) = Pictures [silhouettePicture silh, skeletonPicture skel]
 
-convexPicture :: (Real a) => Convex a -> Picture
-convexPicture (Convex conv) = G.Polygon $ map pointV2 $ S.toList conv
-
 convSkeletonPicture :: ConvSkeleton -> Picture
-convSkeletonPicture (ConvSkeleton cskel) = Color color $ Pictures $ map convexPicture $ S.toList cskel
+convSkeletonPicture (ConvSkeleton cskel) = Color color $ Pictures $ take 1 $ map convexPicture cskel
   where color = green
 
 allPicture :: Problem -> Picture
-allPicture (Problem silh skel) = Pictures [silhouettePicture silh, convSkeletonPicture $ convexize skel]
+allPicture (Problem silh skel) = Pictures [silhouettePicture silh, convSkeletonPicture $ convexize skel, skeletonPicture skel]
 
 visualize :: FilePath -> IO ()
 visualize probPath = do

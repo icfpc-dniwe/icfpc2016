@@ -2,8 +2,8 @@
 
 let
 
-  inherit (nixpkgs) pkgs;
-  inherit (pkgs.haskell) lib;
+  inherit (nixpkgs) pkgs stdenv lib;
+  haskellLib = pkgs.haskell.lib;
 
   haskellPackages = if compiler == "default"
                        then pkgs.haskellPackages
@@ -16,10 +16,10 @@ let
 
   drv = haskellPackages_.callPackage ./default.nix {};
 
-  drv_ = lib.overrideCabal drv (drv: {
-    libraryPkgconfigDepends = [ pkgs.freeglut ];
+  drv_ = haskellLib.overrideCabal drv (drv: {
+    libraryPkgconfigDepends = [ pkgs.freeglut ] ++ lib.optional stdenv.isDarwin pkgs.darwin.apple_sdk.frameworks.OpenGL;
   });
 
 in
 
-  if pkgs.lib.inNixShell then drv_.env else drv_
+  if lib.inNixShell then drv_.env else drv_

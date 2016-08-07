@@ -2,7 +2,6 @@
 
 module Types where
 
-import Data.Set (Set)
 import Data.Ratio
 import Linear.V2
 import Linear.Epsilon
@@ -53,13 +52,13 @@ data Triangle a = Tri !(V2 a) !(V2 a) !(V2 a)
 newtype Polygon a = Polygon [V2 a]
                   deriving (Eq, Show, Ord)
 
-newtype Convex a = Convex (Set (V2 a))
+newtype Convex a = Convex [V2 a]
                  deriving (Eq, Show, Ord)
 
-newtype ConvSkeleton = ConvSkeleton (Set (Convex Rational))
-                     deriving (Eq, Show)
-
 newtype Silhouette = Silhouette [Polygon Rational]
+                   deriving (Eq, Show)
+
+newtype ConvSkeleton = ConvSkeleton [Convex Rational]
                    deriving (Eq, Show)
 
 data Segment a = Seg !(V2 a) !(V2 a)
