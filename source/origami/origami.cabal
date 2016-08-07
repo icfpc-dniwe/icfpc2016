@@ -30,6 +30,7 @@ library
                      , DeriveGeneric
                      , FlexibleContexts
                      , GeneralizedNewtypeDeriving
+                     , DeriveFunctor
   build-depends: base >= 4.7 && < 5
                , attoparsec
                , aeson

@@ -1,5 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances    #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Types where
 
@@ -39,10 +40,15 @@ instance (Num a, Ord a, Integral a, Random a) => Random (Ratio a) where
     (n, g') = randomR (cl, cr) g
     in (n % cd, g')
 
-data Polygon = Polygon [VR]
-  deriving (Eq, Show)
+type VR = V2 Rational
 
-data Silhouette = Silhouette [Polygon]
+data Triangle a = Tri !(V2 a) !(V2 a) !(V2 a)
+                deriving (Eq, Show, Functor)
+
+data Polygon a = Polygon [V2 a]
+               deriving (Eq, Show)
+
+data Silhouette = Silhouette [Polygon Rational]
   deriving (Eq, Show)
 
 data Segment = Segment VR VR

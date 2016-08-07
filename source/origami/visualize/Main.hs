@@ -9,11 +9,12 @@ import Types
 import Parser
 import Math
 
-pointV2 :: VR -> Point
-pointV2 (fmap fromRational -> V2 x y) = (x, y)
+pointV2 :: (Real a) => V2 a -> Point
+pointV2 (fmap (fromRational . toRational) -> V2 x y) = (x, y)
 
-polygonPicture :: Polygon -> Picture
-polygonPicture (Polygon pol) = G.Polygon $ map pointV2 pol
+polygonPicture :: (Real a) => Polygon a -> Picture
+polygonPicture = Pictures . map triPicture . ketTri
+  where triPicture (Tri a b c) = G.Polygon [pointV2 a, pointV2 b, pointV2 c]
 
 silhouettePicture :: Silhouette -> Picture
 silhouettePicture (Silhouette silh) = Pictures $ map polygonize silh

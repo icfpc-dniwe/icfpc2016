@@ -19,7 +19,7 @@ query manager = do
   liftIO $ putStrLn $ "Latest snapshot: " ++ show snapHash
   delay
   snap <- getSnapshot snapHash manager icfpcUrl
-  files <- liftIO $ S.fromList <$> getDirectoryContents "snapshots"
+  files <- liftIO $ S.fromList <$> getDirectoryContents "problems"
   forM_ (problems snap) $ \prob -> do
     let hash = problemSpecHash prob
     let name = show $ problemId prob
