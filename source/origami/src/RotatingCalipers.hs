@@ -1,6 +1,7 @@
 module MinBoxChecker
        ( getMinBoundingBox
        , checkBoundingBox
+       , getBoundingBoxSquareFitTransform
        , v2GetVector
        , v2DotProduct
        , v2Length
