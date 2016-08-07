@@ -1,6 +1,12 @@
 module MinBoxChecker
        ( getMinBoundingBox
        , checkBoundingBox
+       , v2GetVector
+       , v2DotProduct
+       , v2Length
+       , v2GetAngle
+       , v2Rotate
+       , v2RotatePolygon
        , testDummy
        , testRhombus
        , testFailRhombus
@@ -19,7 +25,7 @@ v2GetVector :: (Num a) => V2 a -> V2 a -> V2 a
 v2GetVector (V2 xa ya) (V2 xb yb) = V2 (xb - xa) (yb - ya)
 
 v2DotProduct :: (Floating a) => V2 a -> V2 a -> a
-v2DotProduct (V2 xa ya) (V2 xb yb) = (ya - xa) ** 2 + (yb - xb) ** 2
+v2DotProduct (V2 xa ya) (V2 xb yb) = xa * xb + ya * yb
 
 v2Length :: (Floating a) => V2 a -> a
 v2Length v = sqrt $ v2DotProduct v v
@@ -37,9 +43,10 @@ v2Rotate (V2 xa ya) (V2 xb yb) alpha =
 v2RotatePolygon :: (Floating a) => [V2 a] -> V2 a -> a -> [V2 a]
 v2RotatePolygon pts pvt angle = map (\p -> v2Rotate pvt p angle) pts
 
-getMinBoundingBox :: (Floating a, Ord a, Show a) => Convex a -> (a, a, a, V2 a)
-getMinBoundingBox (Convex ch) = 
-    let pts = S.toList ch
+-- returns BL and UR min bbox corners, angle and pivot for polygon rotation
+getMinBoundingBox :: (Floating a, Ord a, Show a) => Polygon a -> (V2 a, V2 a, a, V2 a)
+getMinBoundingBox (Polygon ch) = 
+    let pts = ch
         lines = zip pts $ drop 1 $ cycle pts
         variants = map (\(p0, p1) ->
                             let angle = v2GetAngle (v2GetVector p0 p1) (V2 0 1)
@@ -51,44 +58,72 @@ getMinBoundingBox (Convex ch) =
                             in
                                 (foldl (\(minx, miny, maxx, maxy) (V2 x y) -> (min x minx, min y miny, max x maxx, max x maxy)) (x0, y0, x0, y0) variant, angle, pvt)
                      ) variants
-        minbox@(area, dx, dy, angle, pvt) = foldl1 (\b0@(area0, _, _, _, _) b1@(area1, _, _, _, _) -> if area0 < area1 then b0 else b1) $ 
+        minbox@(area, pbl, pur, angle, pvt) = foldl1 (\b0@(area0, _, _, _, _) b1@(area1, _, _, _, _) -> if area0 < area1 then b0 else b1) $ 
                                                 map (\((minx, miny, maxx, maxy), angle, pvt) -> 
                                                         let dx = maxx - minx
                                                             dy = maxy - miny
                                                         in
-                                                            (dx * dy, dx, dy, angle, pvt)
+                                                            (dx * dy, V2 minx miny, V2 maxx maxy, angle, pvt)
                                                     ) bboxes
     in
-        trace ("pts " ++ show pts ++ " lines " ++ show lines ++ " variants " ++ show variants ++ " bboxes " ++ show bboxes ++ " minbox " ++ show minbox) $ (dx, dy, angle, pvt)
+--        trace ("pts " ++ show pts ++ " lines " ++ show lines ++ " variants " ++ show variants ++ " bboxes " ++ show bboxes ++ " minbox " ++ show minbox) $ (pbl, pur, angle, pvt)
+        (pbl, pur, angle, pvt)
 
-checkBoundingBox :: (Floating a, Ord a, Show a) => Convex a -> Bool
+checkBoundingBox :: (Floating a, Ord a, Show a) => Polygon a -> Bool
 checkBoundingBox ch = 
-    let (w, h, angle, pvt) = getMinBoundingBox ch
+    let ((V2 xbl ybl), (V2 xur yur), angle, pvt) = getMinBoundingBox ch
+        w = xur - xbl
+        h = yur - ybl
     in
         w <= 1 && h <= 1
 
+getBoundingBoxSquareFitTransform :: (Floating a, Ord a, Show a) => Polygon a -> (Bool, a, a, a, V2 a)
+getBoundingBoxSquareFitTransform ch =
+    let ((V2 xbl ybl), (V2 xur yur), angle, pvt) = getMinBoundingBox ch
+        w = xur - xbl
+        h = yur - ybl
+    in
+        if w <= 1 && h <= 1 then
+        	let dx = if abs (xbl + w) > 1 then -xbl else 0
+        	    dy = if abs (ybl + h) > 1 then -ybl else 0
+        	in
+        	    (True, dx, dy, angle, pvt)
+        else
+        	(False, 0, 0, 0, pvt)
 --
 
 testDummy :: Bool
 testDummy = 
-    let ch = Convex $ S.fromList [V2 (0/1) (0/1), V2 (1/1) (0/1), V2 (1/1) (1/1), V2 (0/1) (1/1)]
+    let ch = Polygon $ [V2 (0/1) (0/1), V2 (1/1) (0/1), V2 (1/1) (1/1), V2 (0/1) (1/1)]
     in
         checkBoundingBox ch
 
 testRhombus :: Bool
 testRhombus =
-	let ch = Convex $ S.fromList [V2 (1/2) (0/1), V2 (0/1) (1/2), V2 (1/2) (1/1), V2 (1/1) (1/2)]
+	let ch = Polygon $ [V2 (1/2) (0/1), V2 (0/1) (1/2), V2 (1/2) (1/1), V2 (1/1) (1/2)]
     in
         checkBoundingBox ch
 
 testFailRhombus :: Bool
 testFailRhombus =
-	let ch = Convex $ S.fromList [V2 (1/2) (-1/1), V2 (-1/1) (1/2), V2 (1/2) (2/1), V2 (2/1) (1/2)]
+	let ch = Polygon $ [V2 (1/2) (-1/1), V2 (-1/1) (1/2), V2 (1/2) (2/1), V2 (2/1) (1/2)]
     in
         checkBoundingBox ch
 
 testPolygon :: Bool
 testPolygon =
-	let ch = Convex $ S.fromList [V2 (2/6) (1/6), V2 (1/6) (4/6), V2 (4/6) (1/1), V2 (1/1) (5/6), V2 (5/6) (2/6)]
+	let ch = Polygon $ [V2 (2/6) (1/6), V2 (1/6) (4/6), V2 (4/6) (1/1), V2 (1/1) (5/6), V2 (5/6) (2/6)]
     in
         checkBoundingBox ch
+
+testPolygon' :: Bool
+testPolygon' =
+	let ch = Polygon $ map (\(V2 x y) -> (V2 (x-3) (y+5))) [V2 (2/6) (1/6), V2 (1/6) (4/6), V2 (4/6) (1/1), V2 (1/1) (5/6), V2 (5/6) (2/6)]
+    in
+        checkBoundingBox ch
+
+testPolygon'' :: (Floating a, Ord a, Show a) => (Bool, a, a, a, V2 a)
+testPolygon'' =
+	let ch = Polygon $ map (\(V2 x y) -> (V2 (x-3) (y+5))) [V2 (2/6) (1/6), V2 (1/6) (4/6), V2 (4/6) (1/1), V2 (1/1) (5/6), V2 (5/6) (2/6)]
+    in
+        getBoundingBoxSquareFitTransform ch
