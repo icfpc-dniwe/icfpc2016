@@ -22,6 +22,7 @@ library
                      , Parser
                      , Emit
                      , ConvexHull
+                     , Convexize
   ghc-options:         -Wall
   default-extensions:  OverloadedStrings
                      , DataKinds
@@ -29,10 +30,13 @@ library
                      , MultiParamTypeClasses
                      , DeriveGeneric
                      , FlexibleContexts
+                     , FlexibleInstances
+                     , FlexibleInstances
                      , GeneralizedNewtypeDeriving
                      , DeriveFunctor
   build-depends: base >= 4.7 && < 5
                , attoparsec
+               , containers
                , aeson
                , linear >= 1.20.5
                , text
@@ -43,6 +47,7 @@ library
                , random
                , servant
                , servant-client
+               , fgl
 
 executable wa-convert
   hs-source-dirs:      wa-convert
@@ -92,6 +97,7 @@ executable visualize
                      , OverloadedStrings
   build-depends: base >= 4.7 && < 5
                , origami
+               , containers
                , gloss
                , linear
                , bytestring
