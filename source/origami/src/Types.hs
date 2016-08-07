@@ -12,6 +12,13 @@ import System.Random
 
 type VR = V2 Rational
 
+fmtVR :: VR -> String
+fmtVR (V2 x y) = "(" ++ (show' x) ++ ", " ++ (show' y) ++ ")" where
+  show' z = show ((fromRational z) :: Double)
+
+fmtPair :: (VR, VR) -> String
+fmtPair (a, b) = (fmtVR a) ++ " -> " ++ (fmtVR b)
+
 instance Epsilon Rational where
   nearZero q = nearZero ((fromRational q) :: Double)
   

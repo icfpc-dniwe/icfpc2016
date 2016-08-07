@@ -7,9 +7,11 @@ module PaperFolding where -- (
 
 
 import ConvexHull
+import Control.Arrow ((***))
 import Data.Foldable
-import Data.List (sortBy, nub)
+import Data.List
 import Data.Maybe
+import Data.Monoid
 import Debug.Trace
 import Linear.V2
 import Math
@@ -26,9 +28,23 @@ initialWireframe = Wireframe [
   , Segment (V2 0 1) (V2 0 0)
   ]
 
-  
+
+
 data Mapping = Mapping [(VR, VR)]
 
+instance Monoid Mapping where
+  mempty = Mapping []
+  mappend (Mapping lhs) (Mapping rhs) = Mapping $ lhs'' ++ rhs'' where
+    lhs' = nub lhs
+    rhs' = nub rhs
+
+    mhs  = map (\l -> (l, lookup (snd l) rhs')) lhs'
+    lhs'' = map (\(l, m) -> (fst l, maybe (snd l) id m)) mhs
+
+    limg = map snd lhs'
+    rhs'' = filter (\r -> not $ (fst r) `elem` limg) rhs'
+
+    
 initialMapping :: Mapping
 initialMapping = Mapping $ map (\v -> (v, v)) [
     V2 0 0
@@ -47,23 +63,20 @@ initialPaper = Paper initialWireframe initialMapping
 data Action = Split Segment
             | Mirror Segment
             | Fold Segment
-            | Move VR
 
 
-mergeMappings :: Mapping -> Mapping -> Mapping 
-mergeMappings (Mapping ms) (Mapping ms') = Mapping (ms ++ ms')
-
+diSegmentEq :: Segment -> Segment -> Bool
+diSegmentEq p@(Segment p1 p2) q = (p == q) || ((Segment p2 p1) == q)
 
 
 performAction :: Action -> Paper -> Paper
 
 performAction (Fold s) paper = performAction (Mirror s) . performAction (Split s) $ paper
 
-
 performAction (Split l) (Paper (Wireframe ws) mapping)
-  = Paper (Wireframe ws') mapping where
+  = Paper (Wireframe ws') mapping' where
 
-    ws' = new ++ old
+    ws' = nubBy diSegmentEq (new ++ old)
 
     ls = map (intersectLineSegment l) ws
     ps = sortBy posOrder $ filter (belongsLineVertex l) (catMaybes ls)
@@ -71,20 +84,22 @@ performAction (Split l) (Paper (Wireframe ws) mapping)
     new = zipWith Segment ps (drop 1 $ cycle ps)
 
     splitSegment segment@(Segment p1 p2) intersection = ($ intersection) $ maybe
-      [segment]
+      ([segment], [])
       (\p -> if (p /= p1) && (p /= p2)
-             then [Segment p1 p, Segment p p2]
-             else [segment])
+             then ([Segment p1 p, Segment p p2], [(p, p)])
+             else ([segment], []))
 
-    old = concat $ zipWith splitSegment ws ls
+    (old, ms') = concat *** concat $ (unzip $ zipWith splitSegment ws ls)
     
-  
+    mapping' = mapping <> (Mapping ms')
+
+
 performAction (Mirror l) (Paper (Wireframe ws) mapping)
   = Paper (Wireframe ws') mapping' where
 
     (ws', ms') = unzip $ map mirrorSegment ws
 
-    mapping' = mapping `mergeMappings` (Mapping $ concat ms')
+    mapping' = mapping <> (Mapping $ concat ms') 
 
     mirrorSegment (Segment p1 p2) = let
       (p1', m1) = mirrorVertex p1
@@ -96,7 +111,6 @@ performAction (Mirror l) (Paper (Wireframe ws) mapping)
       then (p, Nothing)
       else (p', Just (p, p')) where p' = mirrorLineVertex l p 
 
-  
  -- | [VR] supposed to be a convex hull, ccw ordered
 wrapConvexHull :: [VR] -> Paper
 wrapConvexHull hs = foldl' (flip performAction) initialPaper actions' where
