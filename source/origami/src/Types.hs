@@ -1,12 +1,19 @@
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances    #-}
+
 module Types where
 
 import Data.Ratio
 import Linear.V2
+import Linear.Epsilon
 import System.Random
 
 
 type VR = V2 Rational
 
+instance Epsilon Rational where
+  nearZero q = nearZero ((fromRational q) :: Double)
+  
 instance (Random a) => Random (V2 a) where
   random g = let
     (x, g') = random g
